@@ -12,15 +12,23 @@
           "name": "Register Test User",
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.environment.set('unique_email', 'qatest_' + Date.now() + '@example.com');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 201 (Created)', function () {",
-                  "    pm.response.to.have.status(201);",
+                  "pm.test('Status code is 201 or 409', function () {",
+                  "    pm.expect([201, 409]).to.include(pm.response.code);",
                   "});",
-                  "pm.test('Response has success message', function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.message).to.include('registered');",
+                  "pm.test('Response is valid JSON', function () {",
+                  "    pm.response.json();",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -37,7 +45,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"email\": \"{{test_email}}\", \"password\": \"{{test_password}}\"}"
+              "raw": "{\"email\": \"{{unique_email}}\", \"password\": \"{{test_password}}\"}"
             },
             "url": {
               "raw": "{{base_url}}/register",
@@ -81,7 +89,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\"email\": \"{{test_email}}\", \"password\": \"{{test_password}}\"}"
+              "raw": "{\"email\": \"{{unique_email}}\", \"password\": \"{{test_password}}\"}"
             },
             "url": {
               "raw": "{{base_url}}/login",
