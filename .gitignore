@@ -23,6 +23,8 @@ DerivedData
 ios/.xcode.env.local
 test-results.json
 test-report.html
+results.json
+report.html
 
 # Android/IntelliJ
 #

@@ -83,9 +83,13 @@
                   "    pm.expect(response).to.be.an('object');",
                   "});",
                   "",
-                  "pm.test('[BUG] API should reject missing email but returns ' + pm.response.code, function () {",
-                  "    // NOTE: This is a bug - API accepts requests without required fields",
-                  "    pm.expect([400, 422, 201]).to.include(pm.response.code);",
+                  "pm.test('[HTTP] Status code must be 409 Conflict', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "",
+                  "pm.test('[VALIDATION] API rejects missing required email field', function () {",
+                  "    var response = pm.response.json();",
+                  "    pm.expect(response).to.be.an('object');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -127,9 +131,13 @@
                   "    pm.expect(response).to.be.an('object');",
                   "});",
                   "",
-                  "pm.test('[BUG] API should reject missing password but returns ' + pm.response.code, function () {",
-                  "    // NOTE: This is a bug - API accepts requests without required fields",
-                  "    pm.expect([400, 422, 201]).to.include(pm.response.code);",
+                  "pm.test('[HTTP] Status code must be 409 Conflict', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "",
+                  "pm.test('[VALIDATION] API rejects missing required password field', function () {",
+                  "    var response = pm.response.json();",
+                  "    pm.expect(response).to.be.an('object');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -227,8 +235,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('[AUTH] Should reject invalid credentials', function () {",
-                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "pm.test('[AUTH] Should reject invalid credentials with 401', function () {",
+                  "    pm.response.to.have.status(401);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -496,7 +504,7 @@
               "script": {
                 "exec": [
                   "pm.test('[HTTP] Returns 404 for non-existent ID', function () {",
-                  "    pm.expect([404, 400]).to.include(pm.response.code);",
+                  "    pm.response.to.have.status(404);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -606,8 +614,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('[AUTH] Requires authentication', function () {",
-                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "pm.test('[AUTH] Requires authentication with 401', function () {",
+                  "    pm.response.to.have.status(401);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -644,8 +652,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('[AUTH] Rejects invalid token', function () {",
-                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "pm.test('[AUTH] Rejects invalid token with 403', function () {",
+                  "    pm.response.to.have.status(403);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -742,8 +750,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('[AUTH] Requires authentication', function () {",
-                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "pm.test('[AUTH] Requires authentication with 401', function () {",
+                  "    pm.response.to.have.status(401);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -826,8 +834,8 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('[HTTP] Returns error for non-existent order', function () {",
-                  "    pm.expect([404, 400]).to.include(pm.response.code);",
+                  "pm.test('[HTTP] Returns 404 for non-existent order', function () {",
+                  "    pm.response.to.have.status(404);",
                   "});"
                 ],
                 "type": "text/javascript"
