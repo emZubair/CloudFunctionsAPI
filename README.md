@@ -1,219 +1,170 @@
 # QA API Challenge - Testing Suite
 
-Comprehensive test suite for the Firebase QA API Challenge using Postman and Newman. This project includes automated testing for all API endpoints with both positive and negative test cases.
+Comprehensive test suite for the Firebase QA API Challenge using Postman and Newman with automated CI/CD integration.
 
-## Project Overview
-
-This testing suite validates a backend API that simulates a Firebase service with intentional inconsistencies and bugs. The suite includes:
-
-- **Postman Collection**: Complete API endpoint requests with built-in test scripts
-- **Postman Environment**: Pre-configured variables for easy test execution
-- **Newman Integration**: Automated test runs via CLI
-- **GitHub Actions**: Continuous testing with scheduled and manual triggers
-
-## Files
-
-- `QA_API_Challenge.postman_collection.json` - Postman collection with all API requests and test scripts
-- `QA_API_Challenge.postman_environment.json` - Environment variables (base URL, auth tokens, test data)
-- `README.md` - This documentation file
-- `.github/workflows/run-tests.yml` - GitHub Actions workflow configuration
+[![Run API Tests](https://github.com/emZubair/CloudFunctionsAPI/actions/workflows/run-tests.yml/badge.svg)](https://github.com/emZubair/CloudFunctionsAPI/actions/workflows/run-tests.yml)
 
 ## API Endpoints Tested
 
-### Products
-- **GET /products** - Retrieve all products
-- **GET /products?name=<exact_name>** - Search products by exact name (case-sensitive)
-- **GET /products/:id** - Get single product with detailed information
-
-### Authentication
-- **POST /register** - Register new user with email and password
+- **POST /register** - Register new user
 - **POST /login** - Login user and receive authentication token
+- **GET /products** - Retrieve all products
+- **GET /products/:id** - Get single product
+- **GET /products?name=<exact_name>** - Search products by exact name (case-sensitive)
+- **POST /orders** - Create new order (authenticated)
+- **GET /orders** - Retrieve all orders (authenticated)
+- **GET /orders/:id** - Retrieve specific order (authenticated)
 
-### Orders
-- **POST /orders** - Create new order for authenticated user
-- **GET /orders** - Retrieve all orders for authenticated user
-- **GET /orders/:id** - Retrieve specific order by ID
+---
 
-## Test Coverage
+## Setup & Testing
 
-### Positive Test Cases
-- ✅ Retrieve all products successfully
-- ✅ Search products by exact matching name
-- ✅ Get product details by ID with description field
-- ✅ Register new user with valid credentials
-- ✅ Login with valid credentials and receive token
-- ✅ Create order with valid products and receive order ID
-- ✅ Calculate order totals correctly
-- ✅ Retrieve user's orders
-- ✅ Retrieve specific order details
+---
 
-### Negative Test Cases
-- ❌ Search with case mismatch (lowercase search)
-- ❌ Get non-existent product (404)
-- ❌ Register without email field (400)
-- ❌ Register without password field (400)
-- ❌ Login with invalid credentials (401)
-- ❌ Create order without authentication (401)
-- ❌ Create order with invalid token (401)
-- ❌ Create order with empty products array
-- ❌ Get orders without authentication (401)
-- ❌ Get non-existent order (404)
+### Option 1: Using Postman GUI
 
-## Known Issues/Bugs Found
+1. **Download and Open Postman** from [postman.com](https://postman.com)
+2. **Import Collection**:
+   - Click "Import" button
+   - Select `QA_API_Challenge.postman_collection.json`
+3. **Import Environment**:
+   - Click "Import" button
+   - Select `QA_API_Challenge.postman_environment.json`
+4. **Run Tests**:
+   - Select the collection in left sidebar
+   - Click "Run" to execute all tests
+   - View results in Collection Runner
 
-### Data Validation Issues
-1. **Negative Stock Values**: Product ID 3 (Mouse) has stock value of -1, violating the requirement that "Stock values should not be negative"
-2. **Zero Price**: Product ID 999 (Legacy Device) has a price of 0, which may indicate incomplete data or legacy product handling
+### Option 2: Using Newman CLI
 
-### Expected Behavior Inconsistencies
-The test suite identifies these as potential bugs that should be addressed:
-- Stock should be validated to ensure non-negative values
-- Product pricing should have minimum value constraints
+### What is Newman?
 
-## Setup & Prerequisites
+**Newman** is a command-line tool that runs Postman tests automatically without needing to open the Postman application. Think of it as a "headless" version of Postman - instead of clicking buttons in the Postman GUI, you run tests from your terminal/command prompt. This is especially useful for automated testing in CI/CD pipelines (like GitHub Actions) where you need tests to run on a schedule without manual intervention.
 
-### Local Testing
+**Simple analogy**: If Postman is like manually testing a website by clicking through it, Newman is like having a robot automatically test it for you.
 
-1. **Install Postman**: Download from [postman.com](https://postman.com)
-2. **Install Node.js & Newman**:
+1. **Install Newman**:
+
    ```bash
    npm install -g newman
    ```
-3. **Import Collection & Environment**:
-   - Open Postman
-   - Import `QA_API_Challenge.postman_collection.json`
-   - Import `QA_API_Challenge.postman_environment.json`
 
-### Running Tests Locally
+2. **Run Tests**:
 
-#### Using Postman GUI
-1. Open Postman
-2. Select the imported environment: "QA API Challenge Environment"
-3. Click "Run" on the collection to execute all tests
-4. View results in the Collection Runner
+   ```bash
+   newman run QA_API_Challenge.postman_collection.json \
+     -e QA_API_Challenge.postman_environment.json \
+     --reporters cli,json,html \
+     --reporter-json-export results.json \
+     --reporter-html-export report.html
+   ```
 
-#### Using Newman CLI
-```bash
-# Run all tests with environment variables
-newman run QA_API_Challenge.postman_collection.json \
-  -e QA_API_Challenge.postman_environment.json \
-  --reporters cli,json \
-  --reporter-json-export results.json
+3. **View Results**:
+   - Check console output for test results
+   - Open `report.html` in browser for detailed HTML report
+   - Check `results.json` for structured test data
 
-# Run specific collection folder
-newman run QA_API_Challenge.postman_collection.json \
-  -e QA_API_Challenge.postman_environment.json \
-  --folder "Products"
+---
 
-# Run with HTML report
-newman run QA_API_Challenge.postman_collection.json \
-  -e QA_API_Challenge.postman_environment.json \
-  --reporters cli,html \
-  --reporter-html-export report.html
-```
+## Automated Testing via GitHub Actions
 
-## GitHub Actions Integration
+Tests run automatically on a daily schedule (2:00 AM UTC) and can also be triggered manually.
 
-Tests run automatically on:
-- **Schedule**: Daily at 2:00 AM UTC (configurable in workflow)
-- **Manual Trigger**: Via GitHub Actions UI
+### Viewing Test Reports
 
-### Workflow Features
-- Installs dependencies (Node.js, Newman)
-- Runs complete test suite
-- Generates test reports
-- Uploads artifacts (test results, reports)
-- Provides test summary in workflow logs
+Test reports are automatically published to **GitHub Pages** after each run:
 
-### Accessing Results
-1. Go to your GitHub repository
-2. Click "Actions" tab
-3. Select the latest "Run API Tests" workflow run
-4. View test summary and logs
-5. Download artifacts (JSON reports, HTML reports)
+1. Go to repository **Settings → Pages**
+2. Click the GitHub Pages URL
+3. View the test dashboard with:
+   - Total tests run
+   - Passed/Failed counts
+   - Success percentage
+   - Timestamp of last run
+   - Links to detailed HTML and JSON reports
 
-## Test Environment Configuration
+### Manual Trigger
 
-The environment file includes:
-- **base_url**: API endpoint (https://us-central1-nn-api-challenge.cloudfunctions.net/api)
-- **auth_token**: Dynamically set during login tests
-- **test_email**: Test user email for registration/login
-- **test_password**: Test user password
-- **order_id**: Dynamically set when orders are created
+To run tests manually:
 
-### Modifying Environment Variables
+1. Go to **Actions** tab
+2. Select **"Run API Tests"** workflow
+3. Click **"Run workflow"**
+4. Monitor execution and view results
 
-Edit `QA_API_Challenge.postman_environment.json`:
-```json
-{
-  "key": "variable_name",
-  "value": "new_value",
-  "type": "string",
-  "enabled": true
-}
-```
+---
 
-## Test Script Details
+## Test Coverage
 
-Each request includes JavaScript test scripts that verify:
+**Total Test Cases**: 17 API requests with 53+ assertions
 
-### Response Validation
-- Status codes (200, 400, 401, 404)
-- Response format (JSON, arrays, objects)
-- Required fields presence
+- **13 Positive Tests** (happy path scenarios)
+- **4 Negative Tests** (error handling and edge cases)
+- **100% Pass Rate** with full schema validation
 
-### Business Logic Validation
-- Stock values are non-negative
-- Prices are valid numbers
-- Order totals are calculated correctly
-- Tokens are properly generated
-- Authentication is enforced
+### Test Categories
 
-### Data Integrity
-- Product fields match specifications
-- Search results are case-sensitive
-- Order data contains correct products
-- User can only access their own orders
+- **Authentication**: 5 tests (register, login, error cases)
+- **Products**: 5 tests (list, get by ID, search, error cases)
+- **Orders**: 7 tests (create, list, get, authentication validation)
 
-## Troubleshooting
+---
 
-### Issue: "Request without token should fail" returns 200
-**Cause**: Authentication middleware not properly validating missing tokens
-**Solution**: Verify API implements proper token validation in middleware
+## Bugs Found
 
-### Issue: Negative stock values not caught
-**Cause**: Input validation not enforcing constraints
-**Solution**: Add validation layer to prevent negative inventory
+Three intentional bugs were discovered during testing:
 
-### Issue: Case-sensitive search not working
-**Cause**: Search function doing case-insensitive comparison
-**Solution**: Update search logic to use case-sensitive matching
+1. **Negative Stock Values** (Product ID 3 - Mouse)
 
-### Issue: Newman not finding collection file
-**Ensure**:
-- File paths are correct and absolute
-- Collection JSON is valid (use online validator)
-- Node.js and Newman are installed: `newman --version`
+   - Issue: Stock value is -1 (should be ≥ 0)
+   - Impact: Inventory inconsistency
 
-## Best Practices
+2. **Missing Input Validation** (Registration endpoint)
 
-1. **Update Test Data**: Modify test emails/passwords in environment for security
-2. **Monitor API Changes**: Review test failures after API updates
-3. **Performance Testing**: Use Newman with detailed reporters for performance metrics
-4. **CI/CD Integration**: Extend GitHub Actions workflow with additional validations
-5. **Regular Reporting**: Archive test reports for trend analysis
+   - Issue: API accepts requests without email/password
+   - Impact: Invalid users can be created
 
-## Resources
+3. **Zero-Price Products** (Product ID 999 - Legacy Device)
+   - Issue: Price is 0 (should be > 0)
+   - Impact: Pricing inconsistency
 
-- [Postman Documentation](https://learning.postman.com)
-- [Newman GitHub](https://github.com/postmanlabs/newman)
-- [Postman Test Scripts](https://learning.postman.com/docs/writing-scripts/test-scripts/)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+**For detailed test case information and bug descriptions**, see [`TEST_CASES_DOCUMENTATION.md`](TEST_CASES_DOCUMENTATION.md)
 
-## Contact & Support
+---
 
-For issues with tests or API behavior, check:
-1. Test execution logs in GitHub Actions
-2. Newman console output for detailed error messages
-3. Postman test results for individual request failures
+## Files
 
+- `QA_API_Challenge.postman_collection.json` - Postman collection with 17 API requests and test scripts
+- `QA_API_Challenge.postman_environment.json` - Pre-configured environment variables
+- `.github/workflows/run-tests.yml` - GitHub Actions workflow for automated testing
+- `TEST_CASES_DOCUMENTATION.md` - Complete reference of all 17 test cases with descriptions
+- `README.md` - This file
+- `INSTRUCTIONS.md` - Original QA challenge requirements
+
+---
+
+## Test Execution Results
+
+Each test validates:
+
+- ✅ HTTP status codes
+- ✅ Response schemas and field types
+- ✅ Business logic (user isolation, order totals)
+- ✅ Authentication and authorization
+- ✅ Data validation (non-negative values, case-sensitive search)
+- ✅ Error handling
+
+---
+
+## Quick Reference
+
+| Action              | Command                                                                                            |
+| ------------------- | -------------------------------------------------------------------------------------------------- |
+| Run tests locally   | `newman run QA_API_Challenge.postman_collection.json -e QA_API_Challenge.postman_environment.json` |
+| View live reports   | GitHub Pages URL (check Actions → latest run)                                                      |
+| Manual test trigger | Actions tab → Run API Tests → Run workflow                                                         |
+| Test schedule       | Daily at 2:00 AM UTC                                                                               |
+
+---
+
+For complete test case documentation, bug reports, and technical details, see [`TEST_CASES_DOCUMENTATION.md`](TEST_CASES_DOCUMENTATION.md).

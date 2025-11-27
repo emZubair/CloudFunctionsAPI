@@ -88,14 +88,28 @@ jobs:
           path: test-reports/
           retention-days: 30
 
-      - name: Create reports index
+      - name: Prepare GitHub Pages content
         if: github.ref == 'refs/heads/main' && always()
         continue-on-error: true
         run: |
+          # Create directory structure
           mkdir -p gh-pages-content/reports/${{ github.run_number }}
-          cp test-reports/index.html gh-pages-content/reports/${{ github.run_number }}/index.html
-          cp test-reports/results.json gh-pages-content/reports/${{ github.run_number }}/results.json
 
+          # Copy test reports if they exist
+          if [ -f test-reports/index.html ]; then
+            cp test-reports/index.html gh-pages-content/reports/${{ github.run_number }}/index.html
+          fi
+          if [ -f test-reports/results.json ]; then
+            cp test-reports/results.json gh-pages-content/reports/${{ github.run_number }}/results.json
+          fi
+
+          # Create symlink to latest
+          ln -sf ${{ github.run_number }} gh-pages-content/reports/latest
+
+          # Create .nojekyll to disable Jekyll processing
+          touch gh-pages-content/.nojekyll
+
+          # Create root index.html
           cat > gh-pages-content/index.html << 'EOF'
           <!DOCTYPE html>
           <html lang="en">
@@ -270,6 +284,22 @@ jobs:
           </html>
           EOF
 
+      - name: Verify GitHub Pages content
+        if: github.ref == 'refs/heads/main' && always()
+        run: |
+          echo "=== Verifying GitHub Pages Content ==="
+          echo ""
+          echo "Root directory contents:"
+          ls -lah gh-pages-content/ || echo "Directory not found"
+          echo ""
+          echo "Index.html exists and size:"
+          wc -l gh-pages-content/index.html || echo "index.html not found"
+          echo ""
+          echo "Reports directory contents:"
+          ls -lah gh-pages-content/reports/ || echo "Reports directory not found"
+          echo ""
+          echo "=== Verification Complete ==="
+
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main' && always()
         continue-on-error: true
@@ -277,4 +307,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: gh-pages-content
+          destination_dir: .
           keep_files: true
+          force_orphan: false
