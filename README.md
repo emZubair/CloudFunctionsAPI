@@ -68,29 +68,40 @@ Comprehensive test suite for the Firebase QA API Challenge using Postman and New
 
 ## Automated Testing via GitHub Actions
 
-Tests run automatically on a daily schedule (2:00 AM UTC) and can also be triggered manually.
+A GitHub Actions workflow (`.github/workflows/run-tests.yml`) automatically executes the test suite on a daily schedule and publishes reports to GitHub Pages.
 
-### Viewing Test Reports
+### Automated Job Details
+
+- **Schedule**: Runs automatically every day at **2:00 AM UTC**
+- **Workflow File**: `.github/workflows/run-tests.yml`
+- **What it does**:
+  1. Runs the complete Postman test suite using Newman
+  2. Generates HTML and JSON test reports
+  3. Creates a dashboard with test statistics
+  4. Automatically publishes results to GitHub Pages
+
+### View Test Reports
 
 Test reports are automatically published to **GitHub Pages** after each run:
 
-1. Go to repository **Settings → Pages**
-2. Click the GitHub Pages URL
-3. View the test dashboard with:
-   - Total tests run
-   - Passed/Failed counts
-   - Success percentage
-   - Timestamp of last run
-   - Links to detailed HTML and JSON reports
+**📊 Live Dashboard**: [https://emzubair.github.io/CloudFunctionsAPI/](https://emzubair.github.io/CloudFunctionsAPI/)
+
+The dashboard displays:
+- Total tests run
+- Passed/Failed counts
+- Success percentage
+- Timestamp of last run
+- Links to detailed HTML and JSON reports
 
 ### Manual Trigger
 
-To run tests manually:
+To run tests manually without waiting for the schedule:
 
-1. Go to **Actions** tab
+1. Go to **Actions** tab on GitHub
 2. Select **"Run API Tests"** workflow
 3. Click **"Run workflow"**
-4. Monitor execution and view results
+4. Wait for execution to complete
+5. View results at the GitHub Pages link above
 
 ---
 
@@ -110,23 +121,27 @@ To run tests manually:
 
 ---
 
-## Bugs Found
+## Known Issues Found
 
-Three intentional bugs were discovered during testing:
+### Bug #1: Negative Stock Values
 
-1. **Negative Stock Values** (Product ID 3 - Mouse)
+- **Product**: Mouse (ID: 3)
+- **Issue**: Stock value is -1 (should be >= 0)
+- **Impact**: Inventory inconsistency
+- **Test**: [BUG] Stock should not be negative
 
-   - Issue: Stock value is -1 (should be ≥ 0)
-   - Impact: Inventory inconsistency
+### Bug #2: Missing Input Validation
 
-2. **Missing Input Validation** (Registration endpoint)
+- **Issue**: API accepts register requests without email/password
+- **Impact**: Invalid users can be created
+- **Test**: [VALIDATION] Missing email/password tests
 
-   - Issue: API accepts requests without email/password
-   - Impact: Invalid users can be created
+### Bug #3: Zero Price Products
 
-3. **Zero-Price Products** (Product ID 999 - Legacy Device)
-   - Issue: Price is 0 (should be > 0)
-   - Impact: Pricing inconsistency
+- **Product**: Legacy Device (ID: 999)
+- **Issue**: Price is 0
+- **Impact**: Pricing inconsistency
+- **Status**: Documented but not actively tested
 
 **For detailed test case information and bug descriptions**, see [`TEST_CASES_DOCUMENTATION.md`](TEST_CASES_DOCUMENTATION.md)
 
